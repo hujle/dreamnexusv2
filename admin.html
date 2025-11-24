@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>DreamNexus v2.0</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" crossorigin="anonymous">
+  <meta name="description" content="DreamNexus v2.0 Administration panel." />
+</head>
+<body>
+
+  <header class="site-header" role="banner">
+    <div class="site-brand">
+      <span class="site-logo" aria-hidden="true"></span>
+      <div>
+        <div class="site-title">DreamNexus v2.0</div>
+        <div class="site-sub">DreamNexus v2.0 Administration panel</div>
+      </div>
+    </div>
+    <div class="site-controls" role="navigation" aria-label="Website controls">
+      <a href="/admin" class="admin-btn" title="Administration panel" aria-label="Administration panel">
+        <i class="fa-solid fa-gear" aria-hidden="true"></i>
+      </a>
+      <button id="themeToggle" class="theme-toggle" aria-label="Dark/Light theme switcher"></button>
+    </div>
+  </header>
+
+  <main class="container admin-container" role="main">
+    <section id="loginSection" aria-labelledby="loginHeading" style="margin:0 auto 12px;">
+      <h2 id="loginHeading" style="margin-top:0">Login</h2>
+      <p class="muted">Enter the passowrd to get access to administration panel.</p>
+      <div class="form-row" style="margin-top:10px;">
+        <input id="password" type="password" placeholder="Password" autocomplete="current-password" />
+        <button id="btnLogin" class="btn small">Login</button>
+      </div>
+      <div id="loginMsg" class="muted" aria-live="polite" style="margin-top:8px;"></div>
+    </section>
+    <div id="adminRoot" aria-live="polite"></div>
+  </main>
+
+  <footer class="site-footer" role="contentinfo">
+    <div class="footer-links" aria-hidden="false">
+      <a href="https://yumeboo.ru" target="_blank" rel="noopener noreferrer" title="Yumebooru"><i class="fa-solid fa-globe"></i></a>
+      <a href="https://twitter.com/yumebooru" target="_blank" rel="noopener noreferrer" title="Twitter"><i class="fa-brands fa-twitter"></i></a>
+      <a href="https://discord.gg/9q28JXGA3A" target="_blank" rel="noopener noreferrer" title="Discord"><i class="fa-brands fa-discord"></i></a>
+      <a href="mailto:admin@yumeboo.ru" title="Email"><i class="fa-solid fa-envelope"></i></a>
+    </div>
+  </footer>
+
+  <script src="/js/theme.js"></script>
+  <script src="/js/admin.js"></script>
+</body>
+</html>
