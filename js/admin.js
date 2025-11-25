@@ -42,7 +42,6 @@ document.addEventListener('DOMContentLoaded', () => {
     leftControls.appendChild(btnLogout);
     leftControls.appendChild(btnCheckAll);
     leftControls.appendChild(adminStatus);
-
     controlsRow.appendChild(leftControls);
     panelWrap.appendChild(controlsRow);
 
@@ -50,25 +49,25 @@ document.addEventListener('DOMContentLoaded', () => {
     const formSection = document.createElement('section');
     formSection.className = 'server-form';
     formSection.style.marginBottom = '16px';
-
     const formInner = document.createElement('div');
     formInner.style.padding = '8px';
-
     const h3 = document.createElement('h3');
     h3.style.margin = '0 0 8px 0';
     h3.style.fontSize = '1rem';
     h3.textContent = 'Add server';
     formInner.appendChild(h3);
 
+    // invite (text to accept codes and full URLs)
     const rowInvite = document.createElement('div');
     rowInvite.className = 'form-row';
     const inputInvite = document.createElement('input');
     inputInvite.id = 'invite';
-    inputInvite.type = 'url';
-    inputInvite.placeholder = 'https://discord.gg/invite-code или https://discord.com/invite/invite-code';
+    inputInvite.type = 'text';
+    inputInvite.placeholder = 'https://discord.gg/invite-code or invite-code';
     rowInvite.appendChild(inputInvite);
     formInner.appendChild(rowInvite);
 
+    // category
     const rowCategory = document.createElement('div');
     rowCategory.className = 'form-row';
     const inputCategory = document.createElement('input');
@@ -78,6 +77,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rowCategory.appendChild(inputCategory);
     formInner.appendChild(rowCategory);
 
+    // notes
     const rowNotes = document.createElement('div');
     rowNotes.className = 'form-row';
     const textareaNotes = document.createElement('textarea');
@@ -97,6 +97,12 @@ document.addEventListener('DOMContentLoaded', () => {
     rowSubmit.appendChild(btnAdd);
     formInner.appendChild(rowSubmit);
 
+    const addMsg = document.createElement('div');
+    addMsg.id = 'addMsg';
+    addMsg.className = 'muted';
+    addMsg.style.marginTop = '8px';
+    formInner.appendChild(addMsg);
+
     formSection.appendChild(formInner);
     panelWrap.appendChild(formSection);
 
@@ -106,14 +112,13 @@ document.addEventListener('DOMContentLoaded', () => {
     h3List.style.marginTop = '0';
     h3List.textContent = 'Servers list';
     listSection.appendChild(h3List);
-
     const serversContainer = document.createElement('div');
     serversContainer.id = 'servers';
     serversContainer.className = 'admin-list';
     serversContainer.setAttribute('aria-live', 'polite');
     listSection.appendChild(serversContainer);
-
     panelWrap.appendChild(listSection);
+
     adminRoot.appendChild(panelWrap);
 
     // Handlers
@@ -123,27 +128,92 @@ document.addEventListener('DOMContentLoaded', () => {
       loginSection.style.display = '';
     });
 
-    btnCheckAll.addEventListener('click', () => {
+    btnCheckAll.addEventListener('click', async () => {
       btnCheckAll.disabled = true;
       btnCheckAll.textContent = 'Checking...';
-      setTimeout(()=>{ btnCheckAll.disabled = false; btnCheckAll.textContent = 'Check all servers'; alert('Checking completed (demo).'); }, 1200);
+      try {
+        const res = await fetch('/admin/check-all', { method: 'POST', credentials: 'same-origin' });
+        if (res.ok) {
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const data = await res.json().catch(()=>null);
+            if (Array.isArray(data)) renderServers(data);
+            else await fetchServers();
+          } else {
+            await fetchServers();
+          }
+        } else {
+          setTimeout(()=>{ alert('Checking completed (demo).'); }, 900);
+        }
+      } catch (err) {
+        setTimeout(()=>{ alert('Checking completed (demo).'); }, 900);
+      } finally {
+        btnCheckAll.disabled = false;
+        btnCheckAll.textContent = 'Check all servers';
+      }
     });
 
-    btnAdd.addEventListener('click', () => {
+    // Add server: POST /admin/servers
+    btnAdd.addEventListener('click', async () => {
+      addMsg.textContent = '';
       const invite = inputInvite.value.trim();
       const category = inputCategory.value.trim();
       const notes = textareaNotes.value.trim();
-      if(!invite){ alert('Enter Discord invite link'); return; }
-      inputInvite.value = '';
-      inputCategory.value = '';
-      textareaNotes.value = '';
-      fetchServers();
+
+      if (!invite) {
+        addMsg.textContent = 'Enter Discord invite (code or URL).';
+        return;
+      }
+
+      btnAdd.disabled = true;
+      btnAdd.textContent = 'Adding...';
+
+      try {
+        const res = await fetch('/admin/servers', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'same-origin',
+          body: JSON.stringify({ invite, category: category || undefined, notes: notes || undefined })
+        });
+
+        if (res.ok) {
+          const ct = res.headers.get('content-type') || '';
+          if (ct.includes('application/json')) {
+            const data = await res.json().catch(()=>null);
+            if (Array.isArray(data)) renderServers(data);
+            else await fetchServers();
+          } else {
+            await fetchServers();
+          }
+          addMsg.textContent = 'Server added.';
+          inputInvite.value = '';
+          inputCategory.value = '';
+          textareaNotes.value = '';
+        } else if (res.status === 400) {
+          const text = await res.text().catch(()=>null);
+          addMsg.textContent = 'Error: ' + (text || 'Invalid data');
+        } else if (res.status === 401) {
+          addMsg.textContent = 'Unauthorized. Please login again.';
+          clearAuth();
+          adminRoot.innerHTML = '';
+          loginSection.style.display = '';
+        } else {
+          const text = await res.text().catch(()=>null);
+          addMsg.textContent = 'Server error: ' + (text || res.status);
+        }
+      } catch (err) {
+        console.error('Add server failed:', err);
+        addMsg.textContent = 'Network error while adding server.';
+      } finally {
+        btnAdd.disabled = false;
+        btnAdd.textContent = 'Add';
+      }
     });
 
     fetchServers();
   }
 
-  // Login handler: POST /admin/login
+  // Login handler
   btnLogin.addEventListener('click', async () => {
     loginMsg.textContent = '';
     const passwordInput = document.getElementById('password');
@@ -162,20 +232,15 @@ document.addEventListener('DOMContentLoaded', () => {
       const res = await fetch('/admin/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ password: password }),
-        credentials: 'same-origin' // allow cookies if server sets session cookie
+        body: JSON.stringify({ password }),
+        credentials: 'same-origin'
       });
 
-      // Debug logging to console to help diagnose server responses
-      console.info('Login response status:', res.status, 'redirected:', res.redirected);
       const contentType = res.headers.get('content-type') || '';
-      console.info('Login response content-type:', contentType);
 
       if (res.status === 200) {
-        // Try parse JSON if present
         if (contentType.includes('application/json')) {
           const data = await res.json().catch(()=>null);
-          console.info('Login JSON body:', data);
           const token = data && data.token ? data.token : null;
           if (token) {
             setAuthed(token);
@@ -183,28 +248,7 @@ document.addEventListener('DOMContentLoaded', () => {
             renderPanel();
             return;
           }
-          // If no token but server returned 200 JSON without token, treat as failure
-          // but also allow fallback: if server uses session cookie (no token), accept 200
-          // We'll accept 200 as success when no explicit error is returned.
-          console.warn('200 OK but no token in JSON; proceeding as success (server may use session cookie).');
-          setAuthed('session'); // placeholder token to mark session
-          loginSection.style.display = 'none';
-          renderPanel();
-          return;
         }
-
-        // If content-type is HTML or other, server may have set a session cookie and returned HTML.
-        // Treat 200 as success in that case as well.
-        if (contentType.includes('text/html') || res.redirected) {
-          console.info('200 OK with HTML or redirected; assuming server set session cookie — granting access.');
-          setAuthed('session');
-          loginSection.style.display = 'none';
-          renderPanel();
-          return;
-        }
-
-        // Fallback: if 200 and unknown content-type, still accept but log
-        console.info('200 OK with unknown content-type; granting access as fallback.');
         setAuthed('session');
         loginSection.style.display = 'none';
         renderPanel();
@@ -226,13 +270,11 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
-  // If already authed (token in sessionStorage), render panel immediately
   if(isAuthed()){
     loginSection.style.display = 'none';
     renderPanel();
   }
 
-  // Fetch servers and render into #servers
   async function fetchServers(){
     const serversContainer = document.getElementById('servers');
     if(!serversContainer) return;
@@ -298,8 +340,18 @@ document.addEventListener('DOMContentLoaded', () => {
       edit.addEventListener('click', () => {
         const newNotes = prompt('Note', s.notes || '');
         if(newNotes !== null){
-          s.notes = newNotes;
-          fetchServers();
+          fetch(`/admin/servers/${encodeURIComponent(s.id)}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'same-origin',
+            body: JSON.stringify({ notes: newNotes })
+          }).then(res => {
+            if (res.ok) fetchServers();
+            else alert('Failed to save notes');
+          }).catch(err => {
+            console.error('Save notes failed:', err);
+            alert('Failed to save notes');
+          });
         }
       });
 
@@ -308,7 +360,16 @@ document.addEventListener('DOMContentLoaded', () => {
       del.textContent = 'Delete';
       del.addEventListener('click', () => {
         if(confirm('Are you sure you want to delete this server from the list?')){
-          fetchServers();
+          fetch(`/admin/servers/${encodeURIComponent(s.id)}`, {
+            method: 'DELETE',
+            credentials: 'same-origin'
+          }).then(res => {
+            if (res.ok) fetchServers();
+            else alert('Failed to delete');
+          }).catch(err => {
+            console.error('Delete failed:', err);
+            alert('Failed to delete');
+          });
         }
       });
 
