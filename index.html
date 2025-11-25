@@ -19,10 +19,18 @@
       </div>
     </div>
     <div class="site-controls" role="navigation" aria-label="Website controls">
+      <label for="sortSelectMain" class="sr-only">Sort servers</label>
+      <select id="sortSelectMain" class="sort-select">
+        <option value="" selected>Sort</option>
+        <option value="members">Members</option>
+        <option value="online">Online</option>
+        <option value="name">Name</option>
+        <option value="category">Category</option>
+      </select>
       <a href="/admin" class="admin-btn" title="Administration panel" aria-label="Administration panel">
         <i class="fa-solid fa-gear" aria-hidden="true"></i>
       </a>
-      <button id="themeToggle" class="theme-toggle" aria-label="Dark/Light theme switcher"></button>
+      <button id="themeToggle" class="theme-toggle" aria-label="Toggle theme"></button>
     </div>
   </header>
 

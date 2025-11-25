@@ -1,5 +1,55 @@
 document.addEventListener('DOMContentLoaded', () => {
   const listEl = document.getElementById('list');
+  const sortSelect = document.getElementById('sortSelectMain');
+
+  // Cache servers for re-sorting without refetching
+  let serversCache = [];
+
+  // Utility: Fisher-Yates shuffle
+  function shuffle(array) {
+    const a = array.slice();
+    for (let i = a.length - 1; i > 0; i--) {
+      const j = Math.floor(Math.random() * (i + 1));
+      [a[i], a[j]] = [a[j], a[i]];
+    }
+    return a;
+  }
+
+  // Sorting functions
+  const sorters = {
+    members: (a, b) => {
+      const A = Number(a.approx_member_count ?? -Infinity);
+      const B = Number(b.approx_member_count ?? -Infinity);
+      return B - A; // descending
+    },
+    online: (a, b) => {
+      const A = Number(a.approx_presence_count ?? -Infinity);
+      const B = Number(b.approx_presence_count ?? -Infinity);
+      return B - A; // descending
+    },
+    name: (a, b) => {
+      const A = (a.name || '').toLowerCase();
+      const B = (b.name || '').toLowerCase();
+      return A.localeCompare(B);
+    },
+    category: (a, b) => {
+      const A = (a.category || '').toLowerCase();
+      const B = (b.category || '').toLowerCase();
+      return A.localeCompare(B);
+    }
+  };
+
+  function applySortAndRender() {
+    let list = serversCache.slice();
+    const sel = sortSelect ? sortSelect.value : '';
+    if (!sel) {
+      // default random on main page
+      list = shuffle(list);
+    } else if (sorters[sel]) {
+      list.sort(sorters[sel]);
+    }
+    renderList(list);
+  }
 
   async function fetchServers() {
     listEl.innerHTML = '<div style="padding:18px;color:var(--muted)">Loading...</div>';
@@ -10,7 +60,9 @@ document.addEventListener('DOMContentLoaded', () => {
         return;
       }
       const servers = await res.json();
-      renderList(servers);
+      serversCache = Array.isArray(servers) ? servers : [];
+      // On initial load: if select is empty -> random; otherwise apply selected sort
+      applySortAndRender();
     } catch (err) {
       console.error('Failed to load servers:', err);
       listEl.innerHTML = '<div style="padding:18px;color:var(--muted)">Network error while loading servers</div>';
@@ -96,5 +148,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // Event: when user changes sort selection, apply sort (random not in options)
+  if (sortSelect) {
+    sortSelect.addEventListener('change', () => {
+      applySortAndRender();
+    });
+  }
+
+  // Initial fetch
   fetchServers();
 });
