@@ -95,6 +95,43 @@ body {
   z-index: 1001;
 }
 
+/* Sort select styling (applies to main and admin selects) */
+.sort-select {
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  display: inline-block;
+  min-width: 140px;
+  max-width: 220px;
+  padding: 8px 36px 8px 12px;
+  border-radius: 8px;
+  border: 1px solid rgba(0,0,0,0.08);
+  background: linear-gradient(180deg, rgba(255,255,255,0.02), rgba(0,0,0,0.02));
+  color: var(--text);
+  font-size: 14px;
+  cursor: pointer;
+  background-color: var(--card-bg);
+  background-image: linear-gradient(45deg, transparent 50%, rgba(0,0,0,0.25) 50%),
+                    linear-gradient(135deg, rgba(0,0,0,0.25) 50%, transparent 50%),
+                    linear-gradient(to right, transparent, transparent);
+  background-position: calc(100% - 18px) calc(1em + 2px), calc(100% - 13px) calc(1em + 2px), 100% 0;
+  background-size: 6px 6px, 6px 6px, 2.5em 2.5em;
+  background-repeat: no-repeat;
+  transition: box-shadow .12s ease, border-color .12s ease, transform .12s ease;
+}
+
+/* Hover / focus */
+.sort-select:hover { box-shadow: 0 6px 18px rgba(0,0,0,0.06); }
+.sort-select:focus {
+  outline: none;
+  border-color: rgba(43,144,255,0.9);
+  box-shadow: 0 6px 18px rgba(43,144,255,0.08);
+}
+
+/* Small screens: shrink */
+@media (max-width:520px){
+  .sort-select { min-width: 110px; padding-right: 34px; font-size:13px; }
+}
 /* Brand */
 .site-brand {
   display: flex;
