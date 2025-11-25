@@ -301,6 +301,24 @@ html.light .card {
   justify-content: center;
   gap: 8px;
 }
+.card-middle .online {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text);
+  margin-top: 4px;
+}
+
+.card-middle .members {
+  font-weight: 700;
+  font-size: 0.95rem;
+  color: var(--text);
+}
+
+.card-middle .category {
+  font-size: 0.85rem;
+  color: var(--muted);
+  margin-left: 10px;
+}
 
 /* Bottom */
 .card-bottom {
@@ -451,6 +469,8 @@ html.light .server-row {
 .server-row .meta .info {
   color: var(--muted);
   font-size: 0.9rem;
+  display: block;
+  margin-top: 4px;
 }
 .server-row .meta .notes {
   color: var(--muted);
