@@ -1,4 +1,4 @@
-/* Palette */
+/* ---------------- Tokens / Theme variables ---------------- */
 :root {
   --bg-dark: #0e0e0e;
   --menu-bg-dark: #1c1c1c;
@@ -19,8 +19,8 @@
   --gray-900: #1a1a1a;
 
   /* layout */
-  --card-min: 300px;
-  --avatar-size: 80px;
+  --card-min: 264px;
+  --avatar-size: 79px;
   --card-padding: 12px;
   --card-radius: 10px;
   --card-aspect: 1 / 1;
@@ -31,13 +31,12 @@
   --transition: 220ms ease;
   --font-sans: "Segoe UI", Tahoma, Roboto, Arial, sans-serif;
 
-  /* hover targets for explicit behavior */
-  --hover-light-theme: #0b0b0b; /* darker on light theme */
-  --hover-dark-theme: #ffffff; /* lighter on dark theme */
+  --footer-icon: var(--gray-500);
+  --footer-icon-hover: var(--gray-900);
 
-  /* button hover backgrounds */
-  --btn-hover-bg-light: #0b0b0b; /* slightly darker than --gray-900 */
-  --btn-hover-bg-dark: #ffffff; /* slightly lighter than --gray-100 */
+  /* Card fixed size for main page */
+  --card-size: 300px;
+  --accent: #2b90ff;
 }
 
 /* Theme mapping */
@@ -54,9 +53,10 @@ html.light {
   --card-bg: var(--card-bg-light);
   --text: var(--text-light);
   --muted: var(--muted-light);
+  --footer-icon-hover: var(--text-light);
 }
 
-/* Base */
+/* ---------------- Base ---------------- */
 * {
   box-sizing: border-box;
 }
@@ -74,9 +74,12 @@ body {
   transition: background var(--transition), color var(--transition);
   line-height: 1.45;
   font-size: 15px;
+
+  /* Reserve space for footer so it doesn't overlap content */
+  padding-bottom: calc(var(--footer-height) + 12px);
 }
 
-/* Header */
+/* ---------------- Header / Brand / Controls ---------------- */
 .site-header {
   position: fixed;
   top: 0;
@@ -121,21 +124,7 @@ body {
   gap: 8px;
 }
 
-/* BUTTONS & ICONS */
-
-/* Admin/theme icon buttons and footer icons */
-.admin-btn,
-.theme-toggle,
-.footer-links a,
-.btn {
-  /* remove any animation/transition for these interactive elements */
-  transition: none !important;
-  -webkit-transition: none !important;
-  -moz-transition: none !important;
-  -o-transition: none !important;
-}
-
-/* Admin/theme controls: visually identical to footer icons (no bg, no border) */
+/* Admin/theme controls */
 .admin-btn,
 .theme-toggle {
   display: inline-flex;
@@ -147,8 +136,9 @@ body {
   margin: 0;
   background: transparent;
   border: none;
-  color: var(--gray-500);
+  color: var(--footer-icon);
   cursor: pointer;
+  transition: color 140ms ease;
   line-height: 1;
 }
 .admin-btn i,
@@ -157,92 +147,36 @@ body {
   font-size: 16px;
   pointer-events: none;
 }
-
-/* Footer links (icons) */
-.footer-links {
-  display: flex;
-  gap: 16px;
-  align-items: center;
-}
-.footer-links a {
-  color: var(--gray-500);
-  text-decoration: none;
-  font-size: 1.1rem;
-}
-
-/* Primary buttons (.btn) keep their background semantics but no animation */
-.btn {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  border-radius: 8px;
-  text-decoration: none;
-  font-weight: 600;
-  background: var(--gray-100);
-  color: var(--gray-900);
-  border: none;
-}
-html.light .btn {
-  background: var(--gray-900);
-  color: var(--gray-100);
-}
-
-/* Remove transform hover effects previously used */
 .admin-btn:hover,
-.theme-toggle:hover,
-.footer-links a:hover,
-.btn:hover {
-  transform: none !important;
-  -webkit-transform: none !important;
+.theme-toggle:hover {
+  color: var(--footer-icon-hover);
+}
+.admin-btn:focus,
+.theme-toggle:focus {
+  outline: 2px solid rgba(0, 0, 0, 0.06);
+  outline-offset: 2px;
 }
 
-/* THEME-AWARE HOVER COLORS */
-
-/* Light theme hover: make icons/buttons darker */
-html.light .admin-btn:hover,
-html.light .theme-toggle:hover,
-html.light .footer-links a:hover {
-  color: var(--hover-light-theme);
-}
-
-/* Dark theme hover: make icons/buttons lighter */
-:root:not(.light) .admin-btn:hover,
-:root:not(.light) .theme-toggle:hover,
-:root:not(.light) .footer-links a:hover {
-  color: var(--hover-dark-theme);
-}
-
-/* Buttons (.btn) hover backgrounds and text color adjustments */
-/* Light theme: buttons are dark by default; hover -> slightly darker background and ensure readable text */
-html.light .btn:hover {
-  background: var(--btn-hover-bg-light);
-  color: var(--gray-100);
-}
-
-/* Dark theme: buttons are light by default; hover -> slightly lighter background and readable text */
-:root:not(.light) .btn:hover {
-  background: var(--btn-hover-bg-dark);
-  color: var(--gray-900);
-}
-
-/* Container */
+/* ---------------- Layout / Container / Grid ---------------- */
 .container {
   width: 100%;
   padding: calc(var(--header-height) + 14px) 18px
     calc(var(--header-height) + 14px);
   margin: 0 auto;
   box-sizing: border-box;
+  max-width: 1200px;
 }
 
-/* Grid */
+/* Grid used on main page: center when few items */
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(var(--card-min), 1fr));
+  display: flex;
+  flex-wrap: wrap;
   gap: var(--gap);
+  justify-content: center; /* center cards when few */
+  align-items: flex-start;
 }
 
-/* Card: square */
+/* ---------------- Card (generic) ---------------- */
 .card {
   background: var(--card-bg);
   color: var(--text);
@@ -251,6 +185,9 @@ html.light .btn:hover {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5);
   aspect-ratio: var(--card-aspect);
   overflow: hidden;
+  transition: background var(--transition), box-shadow var(--transition);
+  display: flex;
+  align-items: stretch;
 }
 html.light .card {
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.06);
@@ -258,11 +195,10 @@ html.light .card {
 
 /* Card inner spacing */
 .card-inner {
-  height: 100%;
+  width: 100%;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  align-items: center;
   gap: 10px;
   padding: 6px;
   box-sizing: border-box;
@@ -301,23 +237,26 @@ html.light .card {
   justify-content: center;
   gap: 8px;
 }
-.card-middle .online {
+
+/* Buttons (primary) */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  text-decoration: none;
   font-weight: 600;
-  font-size: 0.95rem;
-  color: var(--text);
-  margin-top: 4px;
+  background: var(--gray-100);
+  color: var(--gray-900);
+  border: none;
 }
-
-.card-middle .members {
-  font-weight: 700;
-  font-size: 0.95rem;
-  color: var(--text);
+html.light .btn {
+  background: var(--gray-900);
+  color: var(--gray-100);
 }
-
-.card-middle .category {
-  font-size: 0.85rem;
-  color: var(--muted);
-  margin-left: 10px;
+.btn:hover {
+  opacity: 0.95;
 }
 
 /* Bottom */
@@ -348,7 +287,7 @@ html.light .card {
   font-size: 0.95rem;
 }
 
-/* Footer */
+/* ---------------- Footer ---------------- */
 .site-footer {
   position: fixed;
   left: 0;
@@ -366,19 +305,27 @@ html.light .site-footer {
   background: var(--menu-bg-light);
   border-top: 1px solid var(--gray-300);
 }
+.footer-links {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+.footer-links a {
+  color: var(--footer-icon);
+  text-decoration: none;
+  font-size: 1.1rem;
+}
+.footer-links a:hover {
+  color: var(--footer-icon-hover);
+}
 
-/* Admin panel specific styles */
-
+/* ---------------- Admin panel specific styles ---------------- */
 .admin-container {
   max-width: 980px;
   margin: 0 auto;
   padding: 8px;
   box-sizing: border-box;
-
-  /* top offset from header */
   margin-top: calc(var(--header-height) + 8px);
-
-  /* reduced bottom padding reserved for footer */
   padding-bottom: calc(var(--footer-height) + 8px);
 }
 
@@ -401,6 +348,7 @@ html.light .site-footer {
   background: var(--card-bg);
   color: var(--text);
   font-size: 13px;
+  transition: border-color 0.12s ease, box-shadow 0.12s ease;
   box-shadow: none;
 }
 .form-row textarea {
@@ -408,7 +356,7 @@ html.light .site-footer {
   resize: vertical;
 }
 
-/* server-form: compact, not square */
+/* server-form: compact, NOT a square card */
 .server-form {
   width: 100%;
   max-width: 100%;
@@ -422,14 +370,14 @@ html.light .server-form {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
 
-/* Small buttons */
+/* Small buttons used in admin panel */
 .btn.small {
   padding: 6px 10px;
   font-size: 13px;
   border-radius: 8px;
 }
 
-/* Admin list */
+/* Admin list (table-like) */
 .admin-list {
   margin-top: 12px;
   display: flex;
@@ -438,7 +386,7 @@ html.light .server-form {
   padding-bottom: calc(var(--footer-height) + 8px);
 }
 
-/* Server row */
+/* Each server row in admin list */
 .server-row {
   display: flex;
   align-items: center;
@@ -451,12 +399,16 @@ html.light .server-form {
 html.light .server-row {
   box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
 }
+
+/* server-row avatar */
 .server-row .avatar {
   width: 48px;
   height: 48px;
   border-radius: 8px;
   object-fit: cover;
 }
+
+/* server-row content */
 .server-row .meta {
   flex: 1;
   display: flex;
@@ -469,8 +421,6 @@ html.light .server-row {
 .server-row .meta .info {
   color: var(--muted);
   font-size: 0.9rem;
-  display: block;
-  margin-top: 4px;
 }
 .server-row .meta .notes {
   color: var(--muted);
@@ -485,7 +435,7 @@ html.light .server-row {
   align-items: center;
 }
 
-/* Badges */
+/* Inline status badges */
 .badge {
   display: inline-block;
   padding: 4px 8px;
@@ -507,7 +457,7 @@ html.light .badge {
   text-align: center;
 }
 
-/* Accessibility */
+/* Accessibility helpers */
 .sr-only {
   position: absolute;
   width: 1px;
@@ -519,7 +469,110 @@ html.light .badge {
   border: 0;
 }
 
-/* Responsive */
+/* ---------------- Main page fixed-card styles ---------------- */
+/* Ensure cards are fixed squares (300x300) and centered when few items */
+.fixed-card {
+  width: var(--card-size);
+  height: var(--card-size);
+  padding: var(--card-padding);
+  display: flex;
+  align-items: stretch;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.06);
+  transition: transform 160ms ease, box-shadow 160ms ease;
+}
+.fixed-card .card-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 100%;
+}
+.fixed-card .card-top {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 4px;
+}
+.fixed-card .avatar {
+  width: 84px;
+  height: 84px;
+  border-radius: 12px;
+  object-fit: cover;
+  background: var(--gray-100);
+}
+.fixed-card .title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin: 0;
+  text-align: center;
+  word-break: break-word;
+}
+.fixed-card .card-middle {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 6px 8px;
+  text-align: center;
+}
+.fixed-card .members-line {
+  font-weight: 600;
+  color: var(--text);
+  font-size: 0.95rem;
+}
+.fixed-card .invite-wrap {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+.fixed-card .invite-btn {
+  margin-top: 4px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: var(--accent);
+  color: #fff;
+  text-decoration: none;
+  font-weight: 700;
+  display: inline-block;
+}
+.fixed-card .invite-btn.disabled {
+  opacity: 0.5;
+  pointer-events: none;
+}
+.fixed-card .card-bottom {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 6px 4px 8px 4px;
+}
+.fixed-card .card-category {
+  align-self: flex-start;
+  font-size: 0.9rem;
+  color: var(--muted);
+  font-weight: 600;
+}
+.fixed-card .card-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* ---------------- Small helpers / overrides ---------------- */
+.card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
+}
+.invite-btn {
+  transition: opacity 140ms ease, transform 140ms ease;
+}
+.invite-btn:hover {
+  transform: translateY(-2px);
+}
+
+/* ---------------- Responsive tweaks ---------------- */
 @media (max-width: 900px) {
   :root {
     --card-min: 220px;
@@ -534,16 +587,23 @@ html.light .badge {
     justify-content: flex-end;
   }
 }
-@media (max-width: 600px) {
+@media (max-width: 760px) {
   :root {
-    --card-min: 180px;
-    --avatar-size: 60px;
+    --card-size: 260px;
   }
-  .container {
-    padding: calc(var(--header-height) + 12px) 12px
-      calc(var(--header-height) + 12px);
-  }
-  .site-footer {
+  .avatar {
+    width: 72px;
     height: 72px;
   }
 }
+@media (max-width: 420px) {
+  :root {
+    --card-size: 220px;
+  }
+  .avatar {
+    width: 60px;
+    height: 60px;
+  }
+}
+
+/* ---------------- End of file ---------------- */
