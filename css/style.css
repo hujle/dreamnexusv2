@@ -572,7 +572,7 @@ html.light .badge {
   font-weight: 600;
 }
 .fixed-card .card-note {
-  font-size: 0.9rem;
+  font-size: 0.8rem;
   color: var(--muted);
   white-space: nowrap;
   overflow: hidden;
