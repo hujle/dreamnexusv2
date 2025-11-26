@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderList(servers) {
     listEl.innerHTML = '';
     if (!servers || !servers.length) {
-      listEl.innerHTML = '<div style="padding:18px;color:var(--muted)">No servers yet.</div>';
+      listEl.innerHTML = '<div style="padding:18px;color:var(--muted)">There is a whole lot of nothing... at least for now.</div>';
       return;
     }
 

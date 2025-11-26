@@ -98,6 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rowNotes.className = 'form-row';
     const textareaNotes = document.createElement('input');
     textareaNotes.id = 'notes';
+    inputCategory.type = 'text';
     textareaNotes.placeholder = 'Note (optional)';
     rowNotes.appendChild(textareaNotes);
     formInner.appendChild(rowNotes);
@@ -335,7 +336,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const serversContainer = document.getElementById('servers');
     if(!serversContainer) return;
     serversContainer.innerHTML = '';
-    if(!list || !list.length){ serversContainer.innerHTML = '<div class="admin-empty">List is empty.</div>'; return; }
+    if(!list || !list.length){ serversContainer.innerHTML = '<div class="admin-empty">The list is empty... for now.</div>'; return; }
     list.forEach(s => {
       const row = document.createElement('div');
       row.className = 'server-row';
