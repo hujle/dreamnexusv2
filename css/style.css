@@ -517,7 +517,7 @@ html.light .badge {
 .fixed-card .avatar {
   border-radius: 12px;
   object-fit: cover;
-  background: var(--gray-100);
+  background: var(--bg);
 }
 .fixed-card .title {
   font-weight: 700;
