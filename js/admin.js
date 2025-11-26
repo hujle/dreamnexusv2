@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', () => {
     rowNotes.className = 'form-row';
     const textareaNotes = document.createElement('input');
     textareaNotes.id = 'notes';
-    inputCategory.type = 'text';
+    textareaNotes.type = 'text';
     textareaNotes.placeholder = 'Note (optional)';
     rowNotes.appendChild(textareaNotes);
     formInner.appendChild(rowNotes);
