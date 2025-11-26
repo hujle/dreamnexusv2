@@ -19,24 +19,20 @@
   --gray-900: #1a1a1a;
 
   /* layout */
-  --card-min: 264px;
-  --avatar-size: 79px;
-  --card-padding: 12px;
+  --avatar-size: 80px;
+  --card-size: 300px;
+  --card-padding: 10px;
   --card-radius: 10px;
   --card-aspect: 1 / 1;
   --card-bottom-max: 120px;
   --header-height: 56px;
   --footer-height: 56px;
-  --gap: 12px;
+  --gap: 10px;
   --transition: 220ms ease;
-  --font-sans: "Segoe UI", Tahoma, Roboto, Arial, sans-serif;
+  --font-sans: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 
   --footer-icon: var(--gray-500);
-  --footer-icon-hover: var(--gray-900);
-
-  /* Card fixed size for main page */
-  --card-size: 300px;
-  --accent: #2b90ff;
+  --footer-icon-hover: var(--text-dark);
 }
 
 /* Theme mapping */
@@ -74,8 +70,6 @@ body {
   transition: background var(--transition), color var(--transition);
   line-height: 1.45;
   font-size: 15px;
-
-  /* Reserve space for footer so it doesn't overlap content */
   padding-bottom: calc(var(--footer-height) + 12px);
 }
 
@@ -173,25 +167,17 @@ body {
   margin: 0;
   background: transparent;
   border: none;
-  color: var(--footer-icon);
+  color: var(--text);
   cursor: pointer;
-  transition: color 140ms ease;
   line-height: 1;
+  font-size: 1.5rem;
+  text-decoration: none;
 }
 .admin-btn i,
 .theme-toggle i {
   color: inherit;
-  font-size: 16px;
+  font-size: 1.5rem;
   pointer-events: none;
-}
-.admin-btn:hover,
-.theme-toggle:hover {
-  color: var(--footer-icon-hover);
-}
-.admin-btn:focus,
-.theme-toggle:focus {
-  outline: 2px solid rgba(0, 0, 0, 0.06);
-  outline-offset: 2px;
 }
 
 /* ---------------- Layout / Container / Grid ---------------- */
@@ -201,7 +187,6 @@ body {
     calc(var(--header-height) + 14px);
   margin: 0 auto;
   box-sizing: border-box;
-  max-width: 1200px;
 }
 
 /* Grid used on main page: center when few items */
@@ -420,7 +405,6 @@ html.light .server-form {
   display: flex;
   flex-direction: column;
   gap: 10px;
-  padding-bottom: calc(var(--footer-height) + 8px);
 }
 
 /* Each server row in admin list */
@@ -531,8 +515,6 @@ html.light .badge {
   padding-top: 4px;
 }
 .fixed-card .avatar {
-  width: 84px;
-  height: 84px;
   border-radius: 12px;
   object-fit: cover;
   background: var(--gray-100);
@@ -567,8 +549,8 @@ html.light .badge {
   margin-top: 4px;
   padding: 8px 14px;
   border-radius: 8px;
-  background: var(--accent);
-  color: #fff;
+  background: var(--gray-100);
+  color: var(--gray-900);
   text-decoration: none;
   font-weight: 700;
   display: inline-block;
@@ -595,18 +577,6 @@ html.light .badge {
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-}
-
-/* ---------------- Small helpers / overrides ---------------- */
-.card:hover {
-  transform: translateY(-6px);
-  box-shadow: 0 12px 30px rgba(0, 0, 0, 0.08);
-}
-.invite-btn {
-  transition: opacity 140ms ease, transform 140ms ease;
-}
-.invite-btn:hover {
-  transform: translateY(-2px);
 }
 
 /* ---------------- Responsive tweaks ---------------- */

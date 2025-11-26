@@ -96,9 +96,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // notes
     const rowNotes = document.createElement('div');
     rowNotes.className = 'form-row';
-    const textareaNotes = document.createElement('textarea');
+    const textareaNotes = document.createElement('input');
     textareaNotes.id = 'notes';
-    textareaNotes.placeholder = 'Short notes (optional)';
+    textareaNotes.placeholder = 'Note (optional)';
     rowNotes.appendChild(textareaNotes);
     formInner.appendChild(rowNotes);
 
