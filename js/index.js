@@ -2,10 +2,8 @@ document.addEventListener('DOMContentLoaded', () => {
   const listEl = document.getElementById('list');
   const sortSelect = document.getElementById('sortSelectMain');
 
-  // Cache servers for re-sorting without refetching
   let serversCache = [];
 
-  // Utility: Fisher-Yates shuffle
   function shuffle(array) {
     const a = array.slice();
     for (let i = a.length - 1; i > 0; i--) {
@@ -15,17 +13,16 @@ document.addEventListener('DOMContentLoaded', () => {
     return a;
   }
 
-  // Sorting functions
   const sorters = {
     members: (a, b) => {
       const A = Number(a.approx_member_count ?? -Infinity);
       const B = Number(b.approx_member_count ?? -Infinity);
-      return B - A; // descending
+      return B - A;
     },
     online: (a, b) => {
       const A = Number(a.approx_presence_count ?? -Infinity);
       const B = Number(b.approx_presence_count ?? -Infinity);
-      return B - A; // descending
+      return B - A;
     },
     name: (a, b) => {
       const A = (a.name || '').toLowerCase();
@@ -43,7 +40,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let list = serversCache.slice();
     const sel = sortSelect ? sortSelect.value : '';
     if (!sel) {
-      // default random on main page
       list = shuffle(list);
     } else if (sorters[sel]) {
       list.sort(sorters[sel]);
@@ -61,7 +57,6 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       const servers = await res.json();
       serversCache = Array.isArray(servers) ? servers : [];
-      // On initial load: if select is empty -> random; otherwise apply selected sort
       applySortAndRender();
     } catch (err) {
       console.error('Failed to load servers:', err);
@@ -72,7 +67,7 @@ document.addEventListener('DOMContentLoaded', () => {
   function renderList(servers) {
     listEl.innerHTML = '';
     if (!servers || !servers.length) {
-      listEl.innerHTML = '<div style="padding:18px;color:var(--muted)">There is a whole lot of nothing... at least for now.</div>';
+      listEl.innerHTML = '<div style="padding:18px;color:var(--muted)">No servers yet.</div>';
       return;
     }
 
@@ -83,7 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
       const inner = document.createElement('div');
       inner.className = 'card-inner';
 
-      // Top: avatar + title
+      // Top: avatar + title (centered)
       const top = document.createElement('div');
       top.className = 'card-top';
       const avatar = document.createElement('img');
@@ -97,6 +92,7 @@ document.addEventListener('DOMContentLoaded', () => {
       top.appendChild(avatar);
       top.appendChild(title);
 
+      // Middle: members line and invite area (centered)
       const middle = document.createElement('div');
       middle.className = 'card-middle';
 
@@ -111,22 +107,49 @@ document.addEventListener('DOMContentLoaded', () => {
       membersLine.textContent = `${total} members, ${presence} online`;
       middle.appendChild(membersLine);
 
+      // Invite area: if invite invalid -> show "Invalid invite" (no button)
       const inviteWrap = document.createElement('div');
       inviteWrap.className = 'invite-wrap';
-      const btn = document.createElement('a');
-      btn.className = 'btn invite-btn';
-      btn.textContent = 'Join';
-      btn.href = s.invite && s.invite.startsWith('http') ? s.invite : (s.invite ? `https://discord.gg/${encodeURIComponent(s.invite)}` : '#');
-      if (btn.href === '#') {
-        btn.setAttribute('aria-disabled', 'true');
-        btn.classList.add('disabled');
+
+      // Determine invalidity: support several possible server-side flags
+      const isInvalid = !!(
+        s.invalid === true ||
+        s.invite_valid === false ||
+        (typeof s.invite_status === 'string' && s.invite_status.toLowerCase() === 'invalid')
+      );
+
+      if (isInvalid) {
+        const invalidMsg = document.createElement('div');
+        invalidMsg.className = 'invalid-warning';
+        invalidMsg.setAttribute('role', 'status');
+        invalidMsg.textContent = 'Invalid invite';
+        inviteWrap.appendChild(invalidMsg);
       } else {
-        btn.target = '_blank';
-        btn.rel = 'noopener noreferrer';
+        // create join button only when invite is not marked invalid
+        const btn = document.createElement('a');
+        btn.className = 'btn invite-btn';
+        btn.textContent = 'Join';
+        const href = s.invite && String(s.invite).startsWith('http')
+          ? s.invite
+          : (s.invite ? `https://discord.gg/${encodeURIComponent(s.invite)}` : '#');
+
+        if (href === '#') {
+          // no invite provided -> show disabled message instead of button
+          const noInvite = document.createElement('div');
+          noInvite.className = 'invalid-warning';
+          noInvite.textContent = 'No invite';
+          inviteWrap.appendChild(noInvite);
+        } else {
+          btn.href = href;
+          btn.target = '_blank';
+          btn.rel = 'noopener noreferrer';
+          inviteWrap.appendChild(btn);
+        }
       }
-      inviteWrap.appendChild(btn);
+
       middle.appendChild(inviteWrap);
 
+      // Bottom: category and note
       const bottom = document.createElement('div');
       bottom.className = 'card-bottom';
 
@@ -148,13 +171,11 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Event: when user changes sort selection, apply sort (random not in options)
   if (sortSelect) {
     sortSelect.addEventListener('change', () => {
       applySortAndRender();
     });
   }
 
-  // Initial fetch
   fetchServers();
 });
