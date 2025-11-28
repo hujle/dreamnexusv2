@@ -361,7 +361,6 @@ html.light .site-footer {
 .form-row input[type="text"],
 .form-row input[type="password"],
 .form-row input[type="url"],
-.form-row textarea,
 .form-row select {
   width: 100%;
   padding: 7px 9px;
@@ -372,10 +371,6 @@ html.light .site-footer {
   font-size: 13px;
   transition: border-color 0.12s ease, box-shadow 0.12s ease;
   box-shadow: none;
-}
-.form-row textarea {
-  min-height: 64px;
-  resize: vertical;
 }
 
 /* server-form: compact, NOT a square card */
@@ -532,7 +527,6 @@ html.light .badge {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 6px 8px;
   text-align: center;
 }
 .fixed-card .members-line {
@@ -574,7 +568,7 @@ html.light .badge {
 .fixed-card .card-note {
   font-size: 0.8rem;
   color: var(--muted);
-  white-space: nowrap;
+  white-space: normal;
   overflow: hidden;
   text-overflow: ellipsis;
 }
