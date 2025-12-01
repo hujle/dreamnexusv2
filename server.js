@@ -176,36 +176,89 @@ function extractInviteCode(invite) {
   }
 }
 
-async function checkInvite(inviteCode) {
+// --- Rate-limited invite checking queue (one request per 5 seconds) ---
+let lastInviteCheckTs = 0;
+const INVITE_MIN_INTERVAL_MS = 5000; // 5 seconds
+const inviteQueue = [];
+let inviteQueueProcessing = false;
+
+function sleep(ms) { return new Promise(resolve => setTimeout(resolve, ms)); }
+
+// original axios-based check moved to checkInviteRaw (rename existing checkInvite to this)
+async function checkInviteRaw(inviteCode) {
   const url = `${DISCORD_API_BASE}/invites/${encodeURIComponent(inviteCode)}?with_counts=true`;
   try {
     const resp = await axios.get(url, {
       headers: { 'User-Agent': 'DiscordList/1.0' },
       validateStatus: status => true
     });
-
     if (resp.status === 200 && resp.data) {
       const data = resp.data;
-      return {
-        ok: true,
-        guild_id: data.guild?.id || null,
-        guild_name: data.guild?.name || null,
-        member_count: data.approximate_member_count ?? null,
-        presence_count: data.approximate_presence_count ?? null,
-        icon: data.guild?.icon ?? null
-      };
+      return { ok: true, guild_id: data.guild?.id || null, guild_name: data.guild?.name || null, member_count: data.approximate_member_count ?? null, presence_count: data.approximate_presence_count ?? null, icon: data.guild?.icon ?? null };
     } else {
-      return { ok: false, status: resp.status, body: resp.data || null };
+      return { ok: false, status: resp.status, body: resp.data || null, retryAfter: parseRetryAfter(resp) };
     }
   } catch (err) {
-    console.error('checkInvite error', err.message);
+    console.error('checkInviteRaw error', err.message);
     return { ok: false, error: err.message };
   }
 }
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
+function parseRetryAfter(resp) {
+  // Respect Retry-After header if present (seconds or ms)
+  try {
+    const ra = resp.headers && (resp.headers['retry-after'] || resp.headers['Retry-After']);
+    if (!ra) return null;
+    const n = Number(ra);
+    if (!Number.isNaN(n)) return n * 1000;
+    return null;
+  } catch (e) { return null; }
 }
+
+// Enqueue a check function and process sequentially
+function enqueueInviteCheck(fn) {
+  return new Promise((resolve) => {
+    inviteQueue.push({ fn, resolve });
+    processInviteQueue().catch(err => console.error('invite queue error', err));
+  });
+}
+
+async function processInviteQueue() {
+  if (inviteQueueProcessing) return;
+  inviteQueueProcessing = true;
+  while (inviteQueue.length) {
+    const item = inviteQueue.shift();
+    const now = Date.now();
+    const wait = Math.max(0, INVITE_MIN_INTERVAL_MS - (now - lastInviteCheckTs));
+    if (wait > 0) await sleep(wait);
+
+    // run the actual check
+    let result;
+    try {
+      result = await item.fn();
+    } catch (err) {
+      result = { ok: false, error: err.message || 'unknown' };
+    }
+
+    // if remote asked to retry later, respect it by sleeping that long before next item
+    const retryAfter = result && (result.retryAfter || null);
+    lastInviteCheckTs = Date.now();
+    item.resolve(result);
+
+    if (retryAfter && typeof retryAfter === 'number' && retryAfter > 0) {
+      // ensure we wait at least retryAfter before next request
+      await sleep(retryAfter);
+      lastInviteCheckTs = Date.now();
+    }
+  }
+  inviteQueueProcessing = false;
+}
+
+// Public wrapper used by the rest of the code
+async function checkInvite(inviteCode) {
+  return enqueueInviteCheck(() => checkInviteRaw(inviteCode));
+}
+// --- End of rate-limited queue ---
 
 async function performCheckOnServer(server, { force = false } = {}) {
   const now = new Date().toISOString();

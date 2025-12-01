@@ -381,6 +381,37 @@ document.addEventListener('DOMContentLoaded', () => {
         badge.textContent = 'Invalid invite';
         actions.appendChild(badge);
       }
+      
+      const checkBtn = document.createElement('button');
+      checkBtn.className = 'btn small';
+      checkBtn.textContent = 'Check';
+      checkBtn.title = 'Manually check invite validity';
+      checkBtn.addEventListener('click', async () => {
+        if (!confirm('Run manual check for this server now?')) return;
+        checkBtn.disabled = true;
+        const prevText = checkBtn.textContent;
+        checkBtn.textContent = 'Checking...';
+        try {
+          // Endpoint for single-server check; adjust if backend uses different path
+          const res = await fetch(`/api/servers/${encodeURIComponent(s.id)}/check`, {
+            method: 'POST',
+            credentials: 'same-origin'
+          });
+          if (res.ok) {
+            await fetchServers();
+          } else {
+            const txt = await res.text().catch(()=>null);
+            alert('Check failed: ' + (txt || res.status));
+          }
+        } catch (err) {
+          console.error('Manual check failed:', err);
+          alert('Network error during manual check');
+        } finally {
+          checkBtn.disabled = false;
+          checkBtn.textContent = prevText;
+        }
+      });
+      actions.appendChild(checkBtn);
 
       const edit = document.createElement('button');
       edit.className = 'btn small';
