@@ -310,6 +310,11 @@ app.get('/admin', (req, res) => {
   res.sendFile(path.join(__dirname, 'admin.html'));
 });
 
+// Redirect /about -> about.html
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, 'about.html'));
+});
+
 // Auth middleware
 function requireAuth(req, res, next) {
   if (req.session && req.session.isAdmin) return next();
