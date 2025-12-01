@@ -122,10 +122,6 @@ body {
   box-shadow: 0 6px 18px rgba(43,144,255,0.08);
 }
 
-/* Small screens: shrink */
-@media (max-width:520px){
-  .sort-select { min-width: 110px; padding-right: 34px; font-size:13px; }
-}
 /* Brand */
 .site-brand {
   display: flex;
@@ -159,7 +155,7 @@ body {
 }
 
 /* Admin/theme controls */
-.admin-btn,
+.about-btn,
 .theme-toggle {
   display: inline-flex;
   align-items: center;
@@ -176,7 +172,7 @@ body {
   font-size: 1.5rem;
   text-decoration: none;
 }
-.admin-btn i,
+.about-btn i,
 .theme-toggle i {
   color: inherit;
   font-size: 1.5rem;
@@ -579,37 +575,28 @@ html.light .badge {
   text-overflow: ellipsis;
 }
 
+/* ---------------- About page specific styles ---------------- */
+
+.about {
+  font-size: 15px;
+}
+.about h1 {
+  text-align: center;
+}
+
 /* ---------------- Responsive tweaks ---------------- */
-@media (max-width: 900px) {
-  :root {
-    --card-min: 220px;
-    --avatar-size: 71px;
+
+@media (max-width:540px) {
+  .site-sub {
+    display: none;
   }
-  .server-row {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-  .server-row .actions {
-    width: 100%;
-    justify-content: flex-end;
+  .sort-select {
+    min-width: 100px;
   }
 }
-@media (max-width: 760px) {
-  :root {
-    --card-size: 260px;
-  }
-  .avatar {
-    width: 72px;
-    height: 72px;
-  }
-}
-@media (max-width: 420px) {
-  :root {
-    --card-size: 220px;
-  }
-  .avatar {
-    width: 60px;
-    height: 60px;
+@media (max-width: 400px) {
+  .site-title {
+    font-size: 14px;
   }
 }
 
